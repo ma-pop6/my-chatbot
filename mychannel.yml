@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Create slack"
+# ------------------------------------------------------------#
+# channel
+# ------------------------------------------------------------#
+Parameters:
+  NotifySlackChannel:
+    Type: String
+    Description: C03AZGL4UV6
+  NotifyChatbotWorkspaceId:
+    Type: String
+    Description: T029ZV02JH1
+Resources:
+# ------------------------------------------------------------#
+# Role
+# ------------------------------------------------------------#
+  PipelineNotificationChatbotRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub service-role-for-pipeline-notification-chatbot
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - chatbot.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/CloudWatchReadOnlyAccess
+# ------------------------------------------------------------#
+# Pipeline
+# ------------------------------------------------------------#
+  PipelineNotificationChatbot:
+    Type: AWS::Chatbot::SlackChannelConfiguration
+    Properties:
+      ConfigurationName: pipeline-notification-chatbot
+      IamRoleArn: !GetAtt PipelineNotificationChatbotRole.Arn
+      LoggingLevel: ERROR
+      SlackChannelId: !Ref NotifySlackChannel
+      SlackWorkspaceId: !Ref NotifyChatbotWorkspaceId
+
+      
